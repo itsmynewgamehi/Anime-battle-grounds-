@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#101522">
+<title>Anime Multiverse Battlegrounds — Ichigo Build 0.1</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0c101a;color:#fff;font-family:system-ui,-apple-system,sans-serif;touch-action:none}
+#game{display:block;width:100vw;height:100dvh;background:#151d2c;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none;padding: max(10px,env(safe-area-inset-top)) 12px 12px}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.panel{background:#111827dd;border:1px solid #65708b;border-radius:12px;padding:8px 10px;min-width:35%;box-shadow:0 4px 18px #0006}
+.name{font-size:12px;font-weight:800;letter-spacing:.06em;margin-bottom:5px}
+.bar{height:10px;background:#333b4d;border-radius:99px;overflow:hidden;margin:4px 0}
+.fill{height:100%;width:100%;background:linear-gradient(90deg,#e54d62,#ff9a73);transition:width .12s}
+#meterFill{background:linear-gradient(90deg,#6a8cff,#b6d5ff)}
+.small{font-size:11px;color:#c5cce0}
+#centerInfo{position:absolute;top:82px;left:50%;transform:translateX(-50%);text-align:center;font-weight:800;text-shadow:0 2px 8px #000;white-space:nowrap}
+#mode{font-size:12px;color:#c7d4ff}
+#message{font-size:15px;min-height:20px}
+#controls{position:fixed;inset:auto 0 max(12px,env(safe-area-inset-bottom)) 0;display:flex;justify-content:space-between;align-items:end;padding:0 14px;pointer-events:none}
+#movePad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:4px;pointer-events:auto}
+.ctrl{border:1px solid #aab5d2;background:#26334edb;color:#fff;border-radius:14px;font-weight:800;font-size:13px;min-width:48px;min-height:48px;touch-action:none;user-select:none;-webkit-user-select:none}
+.ctrl:active,.ctrl.active{background:#647db5}
+#actions{display:grid;grid-template-columns:repeat(2,64px);gap:7px;pointer-events:auto}
+#actions .ctrl{height:58px;font-size:12px}
+#hit{background:#a93450;border-color:#ff9aad}
+#ult{background:#4a3a9d;border-color:#b6a8ff}
+#startScreen{position:fixed;inset:0;background:#080c16eF;display:flex;align-items:center;justify-content:center;padding:22px;z-index:5}
+.card{width:min(440px,100%);background:#151d2d;border:1px solid #667391;border-radius:20px;padding:22px;text-align:center;box-shadow:0 15px 60px #0009}
+.card h1{font-size:25px;margin:0 0 8px}
+.card p{color:#c5cce0;line-height:1.45;font-size:14px}
+#start{border:0;border-radius:14px;background:#7654db;color:#fff;font-weight:900;font-size:18px;padding:15px 24px;width:100%;margin-top:8px}
+#endScreen{display:none;position:fixed;inset:0;background:#080c16dc;z-index:6;align-items:center;justify-content:center;padding:20px}
+#restart{border:0;border-radius:12px;padding:13px 22px;background:#7654db;color:#fff;font-weight:800}
+#pauseBtn{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:4;pointer-events:auto;border:1px solid #aab5d2;background:#26334eec;color:#fff;border-radius:12px;padding:10px 14px;font-weight:900;font-size:13px;box-shadow:0 4px 14px #0007}
+#pauseScreen{display:none;position:fixed;inset:0;z-index:7;background:#080c16d9;align-items:center;justify-content:center;padding:20px}
+#pauseScreen .card{max-width:360px}
+#pauseScreen button{border:0;border-radius:12px;padding:13px 22px;background:#7654db;color:#fff;font-weight:800;width:100%;margin-top:8px}
+
+#switchBtn{position:fixed;top:max(12px,env(safe-area-inset-top));right:112px;z-index:4;pointer-events:auto;border:1px solid #aab5d2;background:#26334eec;color:#fff;border-radius:12px;padding:10px 12px;font-weight:900;font-size:12px;box-shadow:0 4px 14px #0007}
+#switchScreen{display:none;position:fixed;inset:0;z-index:8;background:#080c16eF;align-items:center;justify-content:center;padding:18px}
+#switchScreen .card{max-width:520px;max-height:min(82dvh,720px);display:flex;flex-direction:column}
+#switchRoster{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;overflow:auto;padding:4px;overscroll-behavior:contain}
+#switchRoster button{border:1px solid #667391;background:#26334e;color:#fff;border-radius:10px;padding:10px 5px;font-size:12px;font-weight:850;min-height:42px}
+#switchRoster button.active{background:#7654db;border-color:#c4b5fd}
+#switchClose{border:0;border-radius:12px;background:#7654db;color:#fff;font-weight:900;padding:12px;margin-top:10px}
+@media(min-width:700px){#movePad{grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,58px)}#actions{grid-template-columns:repeat(2,76px)}#actions .ctrl{height:64px}}
+#bankaiCinematic{position:fixed;inset:0;z-index:8;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:radial-gradient(circle,#3b101b 0%,#090b13 65%);pointer-events:none;overflow:hidden}
+#bankaiCinematic.show{display:flex;animation:bankaiFade 2.5s ease both}
+#bankaiCinematic:before,#bankaiCinematic:after{content:"";position:absolute;width:160vw;height:4px;background:#e9e9f5;box-shadow:0 0 22px #fff,0 0 55px #e33;transform:rotate(-18deg);animation:bankaiSlash .8s ease-out both}
+#bankaiCinematic:after{transform:rotate(18deg);animation-delay:.12s}
+#bankaiWord{position:relative;z-index:1;font-size:clamp(38px,10vw,76px);font-weight:1000;letter-spacing:.12em;color:#fff;text-shadow:0 0 12px #e34b63,0 0 35px #e34b63;animation:bankaiText .45s ease-out both}
+#bankaiName{position:relative;z-index:1;margin-top:12px;font-size:clamp(17px,4vw,30px);font-weight:900;letter-spacing:.18em;color:#dce7ff;text-shadow:0 0 16px #8db9ff}
+@keyframes bankaiFade{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+@keyframes bankaiSlash{0%{opacity:0;scale:.2}35%{opacity:1}100%{opacity:0;scale:1.3}}
+@keyframes bankaiText{0%{opacity:0;transform:scale(.55)}100%{opacity:1;transform:scale(1)}}
+@media(orientation:landscape){#actions{grid-template-columns:repeat(3,64px)}#actions .ctrl{height:48px}#movePad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px)}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="top">
+  <div class="panel"><div class="name" id="pName">LUFFY</div><div class="bar"><div id="pHP" class="fill"></div></div><div class="small" id="pText">100 / 100 HP</div></div>
+  <div class="panel"><div class="name" id="eName">TRAINING HOLLOW</div><div class="bar"><div id="eHP" class="fill"></div></div><div class="small" id="eText">100 / 100 HP</div></div>
+ </div>
+ <div class="panel" style="position:absolute;top:88px;left:12px;min-width:130px"><div class="name">ULTIMATE</div><div class="bar"><div id="meterFill" class="fill" style="width:0%"></div></div><div class="small" id="meterText">0% — Build meter by fighting</div></div>
+ <div id="centerInfo"><div id="mode">BASE FORM</div><div id="message">Defeat the training hollow!</div></div>
+</div>
+<div id="controls">
+ <div id="movePad">
+  <div></div><button class="ctrl" data-move="up">▲</button><div></div>
+  <button class="ctrl" data-move="left">◀</button><button class="ctrl" data-move="down">▼</button><button class="ctrl" data-move="right">▶</button>
+ </div>
+ <div id="actions">
+  <button class="ctrl" id="hit">M1<br>ATTACK</button>
+  <button class="ctrl" id="skill1">1 · GETSUGA</button>
+  <button class="ctrl" id="skill2">2 · FLASH STEP</button>
+  <button class="ctrl" id="skill3">3 · SLASH</button>
+  <button class="ctrl" id="skill4">4 · GUARD</button>
+  <button class="ctrl" id="ult">ULTIMATE<br>0%</button>
+ </div>
+</div>
+<div id="startScreen"><div class="card">
+ <h1>ANIME MULTIVERSE<br>BATTLEGROUNDS</h1>
+ <p><b>CHARACTER SELECT</b><br>Choose from the expanded Massive Update 1 roster. Select a fighter to preview their moves.</p>
+ <div id="characterSelect" aria-label="Character roster"></div>
+ <p id="pickInfo">LUFFY — Rubber-powered close-range combat. Build meter to awaken GEAR 5.</p>
+ <p>Mobile: use the direction pad and action buttons. Desktop: WASD / arrow keys, J to attack, 1–4 for skills, U to activate Bankai. Bankai announcement uses your device's built-in speech voice.</p>
+ <button id="start">START BATTLE</button>
+</div></div>
+<button id="pauseBtn" type="button" aria-label="Pause battle">Ⅱ PAUSE</button>
+<div id="pauseScreen"><div class="card"><h1>PAUSED</h1><p>The battle is frozen. Resume when you're ready.</p><button id="resumeBtn" type="button">RESUME</button><button id="pauseRestartBtn" type="button">RESTART BATTLE</button></div></div>
+<button id="switchBtn" type="button" aria-label="Switch fighter">⇄ FIGHTER</button>
+<div id="switchScreen" role="dialog" aria-modal="true" aria-label="Switch fighter">
+ <div class="card"><h1>SWITCH FIGHTER</h1><p>Choose a new fighter without leaving the current battle. The training opponent keeps its current HP.</p><div id="switchRoster" aria-label="Available fighters"></div><button id="switchClose" type="button">CLOSE</button></div>
+</div>
+<div id="bankaiCinematic"><div id="bankaiWord">BANKAI!</div><div id="bankaiName">TENSA ZANGETSU</div></div>\n<div id="endScreen"><div class="card"><h1 id="endTitle">BATTLE OVER</h1><p id="endText"></p><button id="restart">FIGHT AGAIN</button></div></div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=0,H=0,dpr=1,running=false,over=false,paused=false,keys={},touch={},last=0,player,enemy,particles=[],floaters=[],cooldowns=[0,0,0,0],combo=0,comboTimer=0,selectedCharacter="luffy";
+const roster={
+ luffy:{name:'MONKEY D. LUFFY',short:'LUFFY',desc:'Rubber-powered close-range fighter. Awakening: Gear 5.',color:'#a94f32',accent:'#f4b36f',hp:180,skills:['Gum-Gum Pistol','Gum-Gum Rocket','Gum-Gum Gatling','Haki Guard'],ults:['Dawn Rocket','Bajrang Step','White Whip','Haki Guard'],awakening:'GEAR 5',form:'SUN GOD NIKA'},
+ ichigo:{name:'ICHIGO KUROSAKI',short:'ICHIGO',desc:'Zangetsu sword combat. Awakening: Bankai.',color:'#252b3c',accent:'#e9edf7',hp:180,skills:['Getsuga Tensho','Flash Step','Zangetsu Slash','Guard'],ults:['Kuroi Getsuga','Bankai Flash Step','Zangetsu Crosscut','Zangetsu Guard'],awakening:'BANKAI!',form:'TENSA ZANGETSU'},
+ grimmjow:{name:'GRIMMJOW JAEGERJAQUE',short:'GRIMMJOW',desc:'Feral Arrancar rushdown and claw strikes.',color:'#286bba',accent:'#a9d9ff',hp:175,skills:['Desgarron','Pantera Rush','Claw Barrage','Hierro Guard'],ults:['Gran Rey Cero','Pantera Assault','King Claw','Hierro Guard'],awakening:'RESURRECCIÓN',form:'PANTERA'},
+ urahara:{name:'KISUKE URAHARA',short:'URAHARA',desc:'Clever swordplay, energy shots and traps.',color:'#c6a84d',accent:'#f4e3a0',hp:170,skills:['Benihime Shot','Flash Step','Crimson Net','Cane Guard'],ults:['Benihime Burst','Kannonbiraki','Blood Web','Benihime Guard'],awakening:'BANKAI',form:'KANNONBIRAKI BENIHIME'},
+ yamamoto:{name:'GENRYUSAI YAMAMOTO',short:'YAMAMOTO',desc:'Heavy-hitting flame-based sword fighter.',color:'#8d332b',accent:'#ffb15e',hp:210,skills:['Flame Slash','Blazing Step','Ennetsu Jigoku','Flame Guard'],ults:['Zanka no Tachi','East: Kyokujitsujin','West: Zanjitsu Gokui','Heat Barrier'],awakening:'BANKAI',form:'ZANKA NO TACHI'},
+ gin:{name:'GIN ICHIMARU',short:'GIN',desc:'Fast, deceptive long-range blade attacks.',color:'#a9b4c7',accent:'#e7edf8',hp:165,skills:['Shinsō','Extension','Blade Feint','Quick Guard'],ults:['Butō Renjin','Kamishini no Yari','Poison Fang','Shinsō Guard'],awakening:'BANKAI',form:'KAMISHINI NO YARI'},
+ tosen:{name:'KANAME TOSEN',short:'TOSEN',desc:'Precise strikes and sensory disruption.',color:'#554a8e',accent:'#c5b7ff',hp:170,skills:['Sound Slash','Sonido','Blindside','Restraint'],ults:['Suzumushi','Nake','Enma Kōrogi','Dark Guard'],awakening:'BANKAI',form:'ENMA KŌROGI'},
+ hakari:{name:'KINJI HAKARI',short:'HAKARI',desc:'Aggressive brawler with jackpot-style momentum.',color:'#b64a70',accent:'#ffb2cb',hp:190,skills:['Rough Energy','Lucky Rush','Fever Combo','Guard'],ults:['Idle Death Gamble','Jackpot Rush','Fever Breaker','Reverse Guard'],awakening:'JACKPOT',form:'UNBREAKABLE MOMENTUM'},
+ reggie:{name:'REGGIE STAR',short:'REGGIE',desc:'Versatile fighter using contract-inspired tricks.',color:'#5a8a75',accent:'#b5f0d5',hp:175,skills:['Receipt Strike','Supply Drop','Contract Rush','Guard'],ults:['Reggie Combo','Heavy Delivery','Receipt Barrage','Counter Guard'],awakening:'FULL KIT',form:'CONTRACT MASTER'},
+ rukia:{name:'RUKIA KUCHIKI',short:'RUKIA',desc:'Ice-based sword techniques and quick movement.',color:'#6a9bd8',accent:'#d9f0ff',hp:165,skills:['Sode no Shirayuki','Ice Step','White Moon','Ice Guard'],ults:['Some no mai','Tsugi no mai','San no mai','Absolute Guard'],awakening:'BANKAI',form:'HAKKA NO TOGAME'},
+ kenpachi:{name:'KENPACHI ZARAKI',short:'KENPACHI',desc:'Powerful close-range pressure and heavy swings.',color:'#a33d3d',accent:'#f5c36a',hp:230,skills:['Heavy Cleave','Charge','Rising Cut','Battle Guard'],ults:['Nozarashi','Meteor Strike','Savage Combo','Unflinching Guard'],awakening:'LIMIT BREAK',form:'NOZARASHI'},
+ toshiro:{name:'TOSHIRO HITSUGAYA',short:'TOSHIRO',desc:'Fast ice attacks with control and range.',color:'#70b9d8',accent:'#e0f8ff',hp:170,skills:['Ice Dragon','Flash Step','Ice Bloom','Ice Guard'],ults:['Daiguren Hyorinmaru','Frozen Dragon','Hyoten Hyakkaso','Absolute Zero'],awakening:'BANKAI',form:'DAIGUREN HYORINMARU'},
+ byakuya:{name:'BYAKUYA KUCHIKI',short:'BYAKUYA',desc:'Elegant mid-range blade and petal attacks.',color:'#b7a6d9',accent:'#f4efff',hp:175,skills:['Senbonzakura','Shunpo','Petal Storm','Senkei Guard'],ults:['Senbonzakura Kageyoshi','Gokei','Senkei','Final Petal Guard'],awakening:'BANKAI',form:'SENBONZAKURA KAGEYOSHI'},
+ kashimo:{name:'HAJIME KASHIMO',short:'KASHIMO',desc:'Electricity-charged strikes and fast pressure.',color:'#8d9bd2',accent:'#f5e879',hp:180,skills:['Shock Strike','Lightning Dash','Charge Blast','Electric Guard'],ults:['Mythical Beast Amber','Thunderclap','Lightning Burst','Static Guard'],awakening:'CURSED TECHNIQUE',form:'MYTHICAL BEAST AMBER'},
+ nanami:{name:'KENTO NANAMI',short:'NANAMI',desc:'Measured close-range strikes with critical hits.',color:'#b89b5b',accent:'#f5df9c',hp:185,skills:['Ratio Strike','Overtime Step','Collapse','Blunt Guard'],ults:['Overtime','7:3 Breaker','Collapse Burst','Overtime Guard'],awakening:'OVERTIME',form:'7:3 CRITICAL'},
+ choso:{name:'CHOSO',short:'CHOSO',desc:'Blood manipulation with ranged pressure.',color:'#8e3948',accent:'#f2a4b0',hp:180,skills:['Piercing Blood','Flowing Red Scale','Blood Edge','Guard'],ults:['Supernova','Piercing Blood MAX','Crimson Burst','Blood Guard'],awakening:'MAX OUTPUT',form:'BLOOD MANIPULATION'},
+ maki:{name:'MAKI ZENIN',short:'MAKI',desc:'Weapon-focused physical combat and mobility.',color:'#397b63',accent:'#b6f0cf',hp:195,skills:['Weapon Strike','Vault Step','Polearm Sweep','Parry'],ults:['Dragon Bone','Heavenly Rush','Weapon Storm','Perfect Parry'],awakening:'AWAKENED',form:'HEAVENLY RESTRICTION'},
+ kokichi:{name:'KOKICHI MUTA',short:'KOKICHI',desc:'Puppet-based ranged attacks and pressure.',color:'#6d80a8',accent:'#d2e2ff',hp:165,skills:['Puppet Blast','Puppet Dash','Drill Barrage','Puppet Guard'],ults:['Ultimate Mechamaru','Mode: Absolute','Cannon Burst','Mechamaru Guard'],awakening:'MODE: ABSOLUTE',form:'ULTIMATE MECHAMARU'},
+ jogo:{name:'JOGO',short:'JOGO',desc:'Explosive volcanic cursed techniques.',color:'#b44c36',accent:'#ffb17a',hp:170,skills:['Ember Insects','Lava Burst','Volcanic Fist','Heat Guard'],ults:['Maximum Meteor','Disaster Flames','Volcanic Eruption','Lava Guard'],awakening:'MAXIMUM',form:'METEOR'},
+ mahito:{name:'MAHITO',short:'MAHITO',desc:'Unpredictable close-range cursed techniques.',color:'#6d679d',accent:'#c6b8ff',hp:180,skills:['Idle Transfiguration','Soul Step','Body Repel','Guard'],ults:['Self-Embodiment','Instant Spirit Body','Soul Multiplicity','Transfiguration Guard'],awakening:'DOMAIN',form:'SELF-EMBODIMENT OF PERFECTION'},
+ todo:{name:'AOI TODO',short:'TODO',desc:'Powerful hand-to-hand combat and feints.',color:'#8a694c',accent:'#f0c99e',hp:205,skills:['Boogie Strike','Clap Switch','Black Flash','Guard'],ults:['Boogie Woogie','Brotherhood Combo','Black Flash Barrage','Clap Counter'],awakening:'BOOGIE WOOGIE',form:'BRUZZA COMBO'},
+ ryu:{name:'RYU ISHIGORI',short:'RYU',desc:'High-output energy blasts and brawling.',color:'#9a7771',accent:'#f0d1c7',hp:190,skills:['Granite Blast','Rush Punch','Output Burst','Guard'],ults:['Maximum Output','Cursed Blast','Granite Barrage','Energy Guard'],awakening:'MAX OUTPUT',form:'GRANITE BLAST'},
+ higaruma:{name:'HIROMI HIGURUMA',short:'HIGURUMA',desc:'Judgment-themed strikes and tactical control.',color:'#9a8c63',accent:'#f4e5ae',hp:180,skills:['Gavel Strike','Judgment Step','Hammer Crush','Guard'],ults:['Deadly Sentencing','Confiscation','Executioner Strike','Judgment Guard'],awakening:'DOMAIN',form:'DEADLY SENTENCING'},
+ buggy:{name:'BUGGY THE CLOWN',short:'BUGGY',desc:'Tricky split-body attacks and unpredictable movement.',color:'#b34a68',accent:'#f5c2d2',hp:165,skills:['Chop-Chop Cannon','Body Split','Muggy Ball','Clown Guard'],ults:['Buggy Bomb','Chop-Chop Festival','Bara Bara Rush','Clown Shield'],awakening:'CHOP-CHOP',form:'FESTIVAL'},
+ sanji:{name:'SANJI',short:'SANJI',desc:'Fast kicking combos and aerial pressure.',color:'#a78b42',accent:'#f7df8d',hp:185,skills:['Diable Jambe','Sky Walk','Concassé','Guard'],ults:['Ifrit Jambe','Beef Burst','Hell Memories','Flame Guard'],awakening:'IFRIT JAMBE',form:'BLUE FLAME'}
+};
+function config(){return roster[selectedCharacter]||roster.luffy}
+const selector=$('characterSelect');Object.keys(roster).forEach((id,i)=>{const b=document.createElement('button');b.className='pick'+(id===selectedCharacter?' active':'');b.dataset.char=id;b.textContent=roster[id].short;selector.appendChild(b)});
+const switchRoster=$('switchRoster');Object.keys(roster).forEach(id=>{const b=document.createElement('button');b.type='button';b.dataset.switchChar=id;b.textContent=roster[id].short;switchRoster.appendChild(b)});
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+function reset(){paused=false;$('pauseScreen').style.display='none';$('pauseBtn').textContent='Ⅱ PAUSE';const cfg=config();player={x:W*.28,y:H*.53,r:19,hp:cfg.hp,max:cfg.hp,meter:0,face:1,stun:0,guard:false,ult:false,ultTime:0,attack:0,flash:0,character:selectedCharacter};enemy={x:W*.72,y:H*.5,r:22,hp:1000,max:1000,face:-1,stun:0,attack:0,ai:0};particles=[];floaters=[];cooldowns=[0,0,0,0];combo=0;comboTimer=0;over=false;updateHud()}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function say(s){$('message').textContent=s}
+function fx(x,y,color,n=10){for(let i=0;i<n;i++){let a=Math.random()*Math.PI*2,v=1+Math.random()*4;particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:25+Math.random()*15,color})}}
+function float(x,y,t){floaters.push({x,y,t,life:40})}
+function updateHud(){
+ $('pName').textContent=roster[player.character]?.name||'FIGHTER';$('pHP').style.width=(100*player.hp/player.max)+'%';$('eHP').style.width=(100*enemy.hp/enemy.max)+'%';
+ $('pText').textContent=Math.ceil(player.hp)+' / '+player.max+' HP';$('eText').textContent=Math.ceil(enemy.hp)+' / '+enemy.max+' HP';
+ $('meterFill').style.width=player.meter+'%';$('meterText').textContent=Math.floor(player.meter)+'%'+(player.ult?' — AWAKENED':' — Build meter by fighting');
+ const cfg=roster[player.character]||roster.ichigo;
+ $('mode').textContent=player.ult?(cfg.awakening+' — '+cfg.form):'BASE FORM';
+ $('ult').innerHTML=player.ult?'AWAKENED<br>'+Math.ceil(player.ultTime)+'s':'ULTIMATE<br>'+Math.floor(player.meter)+'%';
+ const moves=player.ult?cfg.ults:cfg.skills;['skill1','skill2','skill3','skill4'].forEach((id,i)=>$(id).textContent=(i+1)+' · '+moves[i].toUpperCase());
+}
+function damageEnemy(d,label){if(enemy.hp<=0)return;enemy.hp=Math.max(0,enemy.hp-d);enemy.stun=12;player.meter=clamp(player.meter+d*.8,0,100);fx(enemy.x,enemy.y,player.ult?'#b7c9ff':'#f6e7ff',13);float(enemy.x,enemy.y-25,'-'+d+' '+label);if(enemy.hp<=0){say('HOLLOW DEFEATED!');finish(true)}updateHud()}
+function damagePlayer(d){if(player.guard){d=Math.ceil(d*.25);say('GUARD!')}player.hp=Math.max(0,player.hp-d);player.stun=8;fx(player.x,player.y,'#ff8d8d',8);float(player.x,player.y-25,'-'+d);if(player.hp<=0)finish(false);updateHud()}
+function finish(win){over=true;$('endScreen').style.display='flex';$('endTitle').textContent=win?'VICTORY!':'DEFEAT';$('endText').textContent=win?'You defeated the training hollow. Try the awakened moveset next round.':'The hollow won this round. Try guarding, dodging and using your skills.'}
+function attack(){if(!running||over||paused||player.stun>0)return;player.attack=10;let d=dist(player,enemy);if(d<player.r+enemy.r+48){combo=comboTimer>0?combo+1:1;comboTimer=65;damageEnemy(player.ult?13:9,'M1');float(enemy.x,enemy.y-48,combo+' HIT COMBO')}else say('Too far away — move closer!')}
+function skill(i){
+ if(!running||over||paused||player.stun>0)return;
+ if(cooldowns[i]>0){say('Move cooling down: '+(cooldowns[i]/60).toFixed(1)+'s');return}
+ const cfg=roster[player.character]||roster.ichigo;const names=player.ult?cfg.ults:cfg.skills;const isLuffy=player.character==='luffy';
+ if(isLuffy){
+  if(i===0){cooldowns[i]=player.ult?210:180;let d=dist(player,enemy);if(d<390){damageEnemy(player.ult?34:22,names[i]);say(names[i]+' HIT!');fx(enemy.x,enemy.y,player.ult?'#ffe58a':'#f2a16b',18)}else{say('Too far away — line up your punch!');fx(player.x+player.face*55,player.y,'#f2a16b',7)}}
+  if(i===1){cooldowns[i]=190;player.x=clamp(player.x+player.face*125,25,W-25);player.y=clamp(player.y+(enemy.y-player.y)*.16,100,H-90);fx(player.x,player.y,'#f5b36d',18);if(dist(player,enemy)<player.r+enemy.r+80)damageEnemy(player.ult?27:17,names[i]);else say(names[i]+'!')}
+  if(i===2){cooldowns[i]=player.ult?230:205;if(dist(player,enemy)<player.r+enemy.r+120)damageEnemy(player.ult?32:21,names[i]);else say('Gatling missed — get closer!');player.attack=18;fx(player.x+player.face*30,player.y,'#ffd18a',12)}
+  if(i===3){cooldowns[i]=190;player.guard=true;setTimeout(()=>{player.guard=false},950);say('ARMAMENT HAKI GUARD!')}
+  updateHud();return;
+ }
+ if(i===0){cooldowns[i]=player.ult?260:220;let d=dist(player,enemy);if(d<330){damageEnemy(player.ult?36:25,names[i]);say(names[i]+' HIT!')}else{say('GETSUGA MISSED — line up your shot!');fx(player.x+player.face*55,player.y,'#8dc8ff',5)}}
+ if(i===1){cooldowns[i]=180;player.x=clamp(player.x+player.face*105,25,W-25);player.y=clamp(player.y+(enemy.y-player.y)*.18,100,H-90);fx(player.x,player.y,'#a4d9ff',16);if(dist(player,enemy)<player.r+enemy.r+65)damageEnemy(player.ult?22:14,names[i]);else say('FLASH STEP!')}
+ if(i===2){cooldowns[i]=210;if(dist(player,enemy)<player.r+enemy.r+105)damageEnemy(player.ult?30:19,names[i]);else say('Slash missed — get closer!');player.attack=16}
+ if(i===3){cooldowns[i]=player.ult?240:190;player.guard=true;setTimeout(()=>{player.guard=false},850);say(player.ult?'COUNTER READY!':'GUARD UP!')}
+ updateHud()
+}
+function speakBankai(){
+ // Uses the device/browser's built-in speech voice; no anime recording is included.
+ if(!('speechSynthesis' in window))return;
+ try{speechSynthesis.cancel();const line=new SpeechSynthesisUtterance('Bankai! Tensa Zangetsu!');line.rate=.82;line.pitch=.72;line.volume=1;speechSynthesis.speak(line)}catch(e){}
+}
+function bankaiCinematic(){
+ const layer=$('bankaiCinematic');layer.classList.remove('show');void layer.offsetWidth;layer.classList.add('show');
+ setTimeout(()=>layer.classList.remove('show'),2600);
+}
+function awaken(){if(!running||over||paused)return;if(player.ult){say('Awakening is already active!');return}if(player.meter<100){say('Ultimate meter needs 100%!');return}
+ player.meter=0;player.ult=true;player.ultTime=18;player.hp=Math.min(player.max,player.hp+12);
+ const cfg=roster[player.character]||roster.ichigo;$('bankaiWord').textContent=cfg.awakening+'!';$('bankaiName').textContent=cfg.form;bankaiCinematic();if(player.character==='ichigo')speakBankai();fx(player.x,player.y,cfg.accent,48);fx(player.x,player.y,cfg.color,30);say(cfg.awakening+' — '+cfg.form+'!')
+ updateHud()
+}
+function inputMove(){let x=0,y=0;if(keys.ArrowLeft||keys.a||touch.left)x--;if(keys.ArrowRight||keys.d||touch.right)x++;if(keys.ArrowUp||keys.w||touch.up)y--;if(keys.ArrowDown||keys.s||touch.down)y++;let l=Math.hypot(x,y)||1;return{x:x/l,y:y/l}}
+function update(dt){
+ if(!running||over||paused)return;let m=inputMove(),speed=player.ult?(player.character==='luffy'?3.9:3.5):(player.character==='luffy'?3.2:3.1);
+ if(player.stun>0)player.stun-=dt;if(enemy.stun>0)enemy.stun-=dt;
+ if(Math.abs(m.x)+Math.abs(m.y)>0){player.x=clamp(player.x+m.x*speed*dt,24,W-24);player.y=clamp(player.y+m.y*speed*dt,100,H-75);if(m.x)player.face=Math.sign(m.x)}
+ player.guard=!!(keys.Shift||touch.guard);
+ if(player.ult){player.ultTime-=dt/60;if(player.ultTime<=0){player.ult=false;player.ultTime=0;say('Awakening ended. Meter will build again.')} }
+ cooldowns=cooldowns.map(v=>Math.max(0,v-dt));if(comboTimer>0)comboTimer-=dt;else combo=0;
+ // Simple training opponent AI
+ if(enemy.hp>0&&enemy.stun<=0){let dx=player.x-enemy.x,dy=player.y-enemy.y,d=Math.hypot(dx,dy)||1;enemy.face=Math.sign(dx)||enemy.face;if(d>52){enemy.x+=dx/d*1.05*dt;enemy.y+=dy/d*1.05*dt}else{enemy.ai+=dt;if(enemy.ai>78){enemy.ai=0;enemy.attack=12;damagePlayer(7)}}}
+ if(player.attack>0)player.attack-=dt;if(enemy.attack>0)enemy.attack-=dt;
+ particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;p.life-=dt});particles=particles.filter(p=>p.life>0);
+ floaters.forEach(f=>{f.y-=.55*dt;f.life-=dt});floaters=floaters.filter(f=>f.life>0);
+ updateHud()
+}
+function drawFighter(o,color,accent,label,isPlayer){
+ ctx.save();ctx.translate(o.x,o.y);if(o.face<0)ctx.scale(-1,1);
+ if(o.ult&&isPlayer){ctx.shadowColor='#e34b63';ctx.shadowBlur=30}
+ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(0,o.r+9,o.r*1.05,7,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=color;ctx.strokeStyle=accent;ctx.lineWidth=3;
+ ctx.beginPath();ctx.arc(0,0,o.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.fillStyle=accent;ctx.beginPath();ctx.arc(5,-7,5,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(label,0,-o.r-9);
+ if(o.attack>0){ctx.strokeStyle=accent;ctx.lineWidth=5;ctx.beginPath();ctx.arc(13,0,29,-.9,.9);ctx.stroke()}
+ if(o.guard){ctx.strokeStyle='#8fd7ff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,o.r+9,-1.3,1.3);ctx.stroke()}
+ ctx.restore()
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ // arena floor
+ let g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#202d43');g.addColorStop(1,'#111927');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#ffffff0d';ctx.lineWidth=1;for(let x=0;x<W;x+=42){ctx.beginPath();ctx.moveTo(x,80);ctx.lineTo(x,H);ctx.stroke()}for(let y=90;y<H;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ ctx.strokeStyle='#9fb1d933';ctx.lineWidth=3;ctx.strokeRect(12,88,W-24,H-105);
+ // center emblem
+ ctx.strokeStyle='#8ba1c51b';ctx.lineWidth=4;ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)*.18,0,Math.PI*2);ctx.stroke();
+ if(player&&enemy){let cfg=roster[player.character]||roster.ichigo;drawFighter(player,player.ult?'#fff0cf':cfg.color,player.ult?'#fff3a1':cfg.accent,cfg.short,true);drawFighter(enemy,'#672e39','#ff9d9d','HOLLOW',false)}
+ particles.forEach(p=>{ctx.globalAlpha=clamp(p.life/30,0,1);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
+ floaters.forEach(f=>{ctx.globalAlpha=clamp(f.life/20,0,1);ctx.fillStyle='#fff';ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillText(f.t,f.x,f.y);ctx.globalAlpha=1});
+ if(player&&player.ult){ctx.fillStyle='#a9caff';ctx.globalAlpha=.08;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1}
+}
+function loop(t){let dt=Math.min(2,(t-last)/16.67||1);last=t;update(dt);draw();requestAnimationFrame(loop)}
+document.querySelectorAll('[data-move]').forEach(b=>{let k=b.dataset.move;b.addEventListener('pointerdown',e=>{e.preventDefault();touch[k]=true;b.classList.add('active');b.setPointerCapture(e.pointerId)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,e=>{touch[k]=false;b.classList.remove('active')}))});
+function togglePause(force){
+ if(!running||over)return;
+ paused=typeof force==='boolean'?force:!paused;
+ $('pauseScreen').style.display=paused?'flex':'none';
+ $('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';
+ if(paused){keys={};touch={};document.querySelectorAll('.ctrl.active').forEach(b=>b.classList.remove('active'));say('Battle paused.')}
+ else say('Battle resumed!');
+}
+function openSwitchMenu(){if(!running||over)return;paused=true;keys={};touch={};$('pauseScreen').style.display='none';$('pauseBtn').textContent='▶ RESUME';$('switchScreen').style.display='flex';document.querySelectorAll('[data-switch-char]').forEach(b=>b.classList.toggle('active',b.dataset.switchChar===player.character));}
+function closeSwitchMenu(){ $('switchScreen').style.display='none'; if(running&&!over){paused=false;$('pauseBtn').textContent='Ⅱ PAUSE';say('Fighter selected. Battle resumed!');}}
+function switchFighter(id){if(!roster[id]||!player)return;selectedCharacter=id;const cfg=roster[id];player.character=id;player.max=cfg.hp;player.hp=cfg.hp;player.meter=0;player.ult=false;player.ultTime=0;player.stun=0;player.guard=false;player.attack=0;cooldowns=[0,0,0,0];combo=0;comboTimer=0;document.querySelectorAll('[data-char]').forEach(b=>b.classList.toggle('active',b.dataset.char===id));document.querySelectorAll('[data-switch-char]').forEach(b=>b.classList.toggle('active',b.dataset.switchChar===id));$('pickInfo').textContent=cfg.name+' — '+cfg.desc;fx(player.x,player.y,cfg.accent,24);say('Switched to '+cfg.short+'! Opponent progress preserved.');updateHud();closeSwitchMenu();}
+$('switchBtn').addEventListener('click',openSwitchMenu);
+$('switchClose').addEventListener('click',closeSwitchMenu);
+switchRoster.addEventListener('click',e=>{const b=e.target.closest('[data-switch-char]');if(b)switchFighter(b.dataset.switchChar)});
+$('pauseBtn').addEventListener('click',()=>togglePause());
+$('resumeBtn').addEventListener('click',()=>togglePause(false));
+$('pauseRestartBtn').addEventListener('click',()=>{$('pauseScreen').style.display='none';reset();running=true;say('Rematch!')});
+function bind(id,fn){$(id).addEventListener('pointerdown',e=>{e.preventDefault();fn()})}
+bind('hit',attack);bind('skill1',()=>skill(0));bind('skill2',()=>skill(1));bind('skill3',()=>skill(2));bind('skill4',()=>skill(3));bind('ult',awaken);
+addEventListener('keydown',e=>{if(e.key==='Escape'){if(!e.repeat){if($('switchScreen').style.display==='flex')closeSwitchMenu();else togglePause()}return}if(paused)return;keys[e.key]=true;if(e.repeat)return;if(e.key==='j'||e.key===' ')attack();if('1234'.includes(e.key))skill(Number(e.key)-1);if(e.key==='u')awaken()});
+addEventListener('keyup',e=>keys[e.key]=false);
+document.querySelectorAll('[data-char]').forEach(b=>b.addEventListener('click',()=>{selectedCharacter=b.dataset.char;document.querySelectorAll('[data-char]').forEach(x=>x.classList.toggle('active',x===b));const cfg=config();$('pickInfo').textContent=cfg.name+' — '+cfg.desc;}));$('pickInfo').textContent=config().name+' — '+config().desc;
+$('start').onclick=()=>{$('startScreen').style.display='none';running=true;reset();say(selectedCharacter==='luffy'?'Fight! Build meter to awaken Gear 5.':'Fight! Build meter to activate Bankai.')};
+$('restart').onclick=()=>{$('endScreen').style.display='none';reset();running=true;say('Rematch!')};
+reset();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
