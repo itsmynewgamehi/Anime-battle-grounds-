@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#101522">
-<title>Anime Multiverse Battlegrounds — Update 10 Prototype</title>
+<title>Anime Multiverse Battlegrounds — Update 10 Wave 1</title>
 <style>
 :root{color-scheme:dark}
 *{box-sizing:border-box}
@@ -65,6 +65,14 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0c101a;col
 .rosterSearch{width:100%;padding:11px 12px;color:#fff;background:#111827;border:1px solid #697891;border-radius:10px;font:inherit;touch-action:manipulation}#rosterStats{margin:6px;color:#bcd1f7;font-size:12px}.smallHint{font-size:11px!important;color:#aab8d5!important;margin:5px 0!important}#combatExtras{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3;pointer-events:auto}#combatExtras button{min-width:52px;padding:7px;font-size:11px;min-height:46px;background:#3a4566}#dashBtn{background:#205d80!important}#dodgeBtn{background:#4c457a!important}#trainingBtn{position:fixed;top:max(58px,env(safe-area-inset-top) + 48px);right:12px;z-index:4;color:#fff;background:#253247;border:1px solid #8797bc;border-radius:9px;padding:7px;font-size:11px;font-weight:800}#combatExtras .ctrl{user-select:none}
 @media(max-width:430px){#combatExtras{left:50%;bottom:max(5px,env(safe-area-inset-bottom));flex-direction:column}#combatExtras button{min-height:36px;padding:4px;font-size:10px}#characterSelect{grid-template-columns:repeat(2,minmax(0,1fr))}#switchRoster{grid-template-columns:repeat(2,minmax(0,1fr))}#actions{gap:4px}#actions .ctrl{min-width:54px;height:49px;font-size:10px}#movePad{gap:2px;grid-template-columns:repeat(3,43px);grid-template-rows:repeat(2,43px)}}
 @media(orientation:landscape) and (max-height:500px){#combatExtras{left:50%;bottom:8px;flex-direction:row}#combatExtras button{min-height:37px}#centerInfo{top:55px}#hud .panel[style]{top:55px!important}}
+/* Update 10 Wave 1 — random choice and Chaos Mode */
+.rosterShortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0}
+.rosterShortcuts button{background:#293a60;color:#fff;font-weight:900;border:1px solid #93a9d9;border-radius:11px;padding:11px 7px;cursor:pointer;touch-action:manipulation}
+.rosterShortcuts .chaosButton{background:#6b367c;border-color:#e3a4f1}
+.rosterShortcuts button:active{filter:brightness(1.2)}
+#chaosInfo{display:none;position:fixed;top:max(138px,env(safe-area-inset-top) + 128px);left:12px;z-index:3;max-width:min(340px,75vw);font-size:11px;background:#111827db;border:1px solid #b48cda;border-radius:9px;padding:7px 10px;line-height:1.5;pointer-events:none}
+#chaosReroll{display:none;position:fixed;right:12px;top:max(92px,env(safe-area-inset-top) + 82px);z-index:4;padding:8px;border-radius:9px;border:1px solid #d5acec;background:#623975;color:#fff;font-weight:900;cursor:pointer}
+@media(max-height:560px){#chaosInfo{top:76px;max-width:250px;max-height:86px;overflow:hidden;font-size:9px}#chaosReroll{top:56px;right:12px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -91,20 +99,20 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0c101a;col
   <button class="ctrl" id="ult">ULTIMATE<br>0%</button>
  </div>
 </div>
-<div id="combatExtras"><button id="dashBtn" class="ctrl" type="button">DASH Q</button><button id="dodgeBtn" class="ctrl" type="button">DODGE E</button><button id="blockBtn" class="ctrl" type="button">BLOCK B</button></div><button id="trainingBtn" type="button">RESET DUMMY</button>
+<div id="combatExtras"><button id="dashBtn" class="ctrl" type="button">DASH Q</button><button id="dodgeBtn" class="ctrl" type="button">DODGE E</button><button id="blockBtn" class="ctrl" type="button">BLOCK B</button></div><button id="trainingBtn" type="button">RESET DUMMY</button><button id="chaosReroll" type="button">🎲 REROLL (R)</button><div id="chaosInfo" aria-live="polite"></div>
 <div id="startScreen"><div class="card">
  <h1>ANIME MULTIVERSE<br>BATTLEGROUNDS</h1>
- <p><b>CHARACTER SELECT</b><br>Choose from the expanded Massive Update 1 roster. Select a fighter to preview their moves.</p>
- <input id="startSearch" class="rosterSearch" type="search" placeholder="Search fighters or prototype slots..." aria-label="Search playable fighters"><div id="rosterStats"></div><div id="characterSelect" aria-label="Character roster"></div>
+ <p><b>UPDATE 10 · WAVE 1 / 2</b><br>5,000 playable slots of the 10,000+ target. The remaining 5,000 are reserved for future waves.</p>
+ <div class="rosterShortcuts"><button id="randomPick" type="button">🎲 RANDOM FIGHTER</button><button id="chaosPick" class="chaosButton" type="button">⚡ CHAOS MODE</button></div><input id="startSearch" class="rosterSearch" type="search" placeholder="Search fighters or prototype slots..." aria-label="Search playable fighters"><div id="rosterStats"></div><div id="characterSelect" aria-label="Character roster"></div>
  <p id="pickInfo">LUFFY — Rubber-powered close-range combat. Build meter to awaken GEAR 5.</p>
- <p class="smallHint">25 named fighters + 4,975 generated prototype slots. Prototype slots use shared archetype movesets, not finished individual characters.</p><p>PC: WASD / arrows, J attack, 1–4 skills, U awakening, Q dash, E dodge, hold B to block, Esc pause. Mobile: on-screen buttons.</p>
+ <p class="smallHint">25 named fighters + 4,975 generated prototype fighters, using eight shared fighting styles. Chaos Mode mixes moves from four different existing fighters. The remaining 5,000 target slots are not playable yet.</p><p>PC: WASD/arrows, J attack, 1–4 skills, U awakening, Q dash, E dodge, B/Shift block, R reroll Chaos, Esc pause. Mobile: on-screen buttons.</p>
  <button id="start">START BATTLE</button>
 </div></div>
 <button id="pauseBtn" type="button" aria-label="Pause battle">Ⅱ PAUSE</button>
 <div id="pauseScreen"><div class="card"><h1>PAUSED</h1><p>The battle is frozen. Resume when you're ready.</p><button id="resumeBtn" type="button">RESUME</button><button id="pauseRestartBtn" type="button">RESTART BATTLE</button></div></div>
 <button id="switchBtn" type="button" aria-label="Switch fighter">⇄ FIGHTER</button>
 <div id="switchScreen" role="dialog" aria-modal="true" aria-label="Switch fighter">
- <div class="card"><h1>SWITCH FIGHTER</h1><p>Choose a new fighter without leaving the current battle. The training opponent keeps its current HP.</p><input id="switchSearch" class="rosterSearch" type="search" placeholder="Search 5,000 slots..." aria-label="Search fighters"><p class="smallHint">Only matching fighters are shown (max 60). Opponent HP is preserved.</p><div id="switchRoster" aria-label="Available fighters"></div><button id="switchClose" type="button">CLOSE</button></div>
+ <div class="card"><h1>SWITCH FIGHTER</h1><p>Choose a new fighter without leaving the current battle. The training opponent keeps its current HP.</p><div class="rosterShortcuts"><button id="randomSwitch" type="button">🎲 RANDOM FIGHTER</button><button id="chaosSwitch" class="chaosButton" type="button">⚡ CHAOS MODE</button></div><input id="switchSearch" class="rosterSearch" type="search" placeholder="Search 5,000 playable slots..." aria-label="Search fighters"><p class="smallHint">Search by name or slot number (max 60 shown). Opponent HP is preserved.</p><div id="switchRoster" aria-label="Available fighters"></div><button id="switchClose" type="button">CLOSE</button></div>
 </div>
 <div id="bankaiCinematic"><div id="bankaiWord">BANKAI!</div><div id="bankaiName">TENSA ZANGETSU</div></div>
 <div id="endScreen"><div class="card"><h1 id="endTitle">BATTLE OVER</h1><p id="endText"></p><button id="restart">FIGHT AGAIN</button></div></div>
@@ -158,6 +166,34 @@ for(let i=originalIds.length;i<allIds.length;i++){
  const id=allIds[i],n=i-originalIds.length+1,base=archetypes[(n-1)%archetypes.length];
  roster[id]={...base,skills:[...base.skills],ults:[...base.ults],name:'PROTOTYPE FIGHTER '+String(n).padStart(4,'0'),short:'TEST '+n,desc:'Generated '+base.name.toLowerCase()+' placeholder. Shared archetype combat; not a finished licensed character.',isPrototype:true};
 }
+// Chaos is a special MODE, not a 5,001st finished character.
+const randomPickIds=allIds.slice();
+roster.chaos={name:'CHAOS FIGHTER',short:'CHAOS',desc:'Mix four different fighters into one moveset! Reroll every new battle, or press R in battle.',color:'#974bbc',accent:'#edbdff',hp:195,skills:['Shuffle Strike','Shuffle Dash','Shuffle Burst','Shuffle Guard'],ults:['Chaos Strike','Chaos Step','Chaos Storm','Chaos Guard'],awakening:'CHAOS AWAKENING',form:'MULTIVERSE MIX',isChaos:true,chaosSources:[]};
+allIds.unshift('chaos');
+let chaosRerollCD=0;
+function randomId(){return randomPickIds[Math.floor(Math.random()*randomPickIds.length)]}
+function rollChaos(){
+  // Only the 25 named, already-existing fighters supply signature move names.
+  const pool=originalIds.slice(),chosen=[];
+  for(let i=0;i<4;i++) {const n=Math.floor(Math.random()*pool.length);chosen.push(pool.splice(n,1)[0])}
+  const cfg=roster.chaos;
+  cfg.chaosSources=chosen;
+  cfg.skills=chosen.map((id,i)=>roster[id].skills[i]);
+  cfg.ults=chosen.map((id,i)=>roster[id].ults[i]);
+  const source=roster[chosen[Math.floor(Math.random()*chosen.length)]];
+  cfg.awakening='CHAOS: '+source.awakening;
+  cfg.form=source.form;
+  cfg.color=roster[chosen[0]].color;
+  cfg.accent=roster[chosen[0]].accent;
+  cfg.desc='Random moves from '+chosen.map(id=>roster[id].short).join(', ')+'. Reroll in battle (20s cooldown).';
+  return cfg;
+}
+function showChaos(){
+  const active=player&&player.character==='chaos',cfg=roster.chaos;
+  $('chaosInfo').style.display=active?'block':'none';
+  $('chaosReroll').style.display=active?'block':'none';
+  if(active){$('chaosInfo').textContent='⚡ CHAOS LOADOUT · '+cfg.chaosSources.map((id,i)=>(i+1)+': '+cfg.skills[i]+' ['+roster[id].short+']').join('  •  ');$('chaosReroll').textContent=chaosRerollCD>0?'REROLL '+Math.ceil(chaosRerollCD/60)+'s':'🎲 REROLL (R)'}
+}
 function config(){return roster[selectedCharacter]||roster.luffy}
 const selector=$('characterSelect'),switchRoster=$('switchRoster');
 function drawRoster(target,term,mode){
@@ -166,14 +202,14 @@ function drawRoster(target,term,mode){
  const showing=ids.slice(0,60),frag=document.createDocumentFragment();
  for(const id of showing){const b=document.createElement('button');b.type='button';b.className=(id===selectedCharacter?'active ':'')+(mode==='pick'?'pick':'');b.dataset[mode==='pick'?'char':'switchChar']=id;b.textContent=roster[id].short;frag.appendChild(b)}
  target.appendChild(frag);
- if(mode==='pick')$('rosterStats').textContent=`${originalIds.length} named + ${slotCount-originalIds.length} prototype slots · ${ids.length} matches (showing ${showing.length})`;
+ if(mode==='pick')$('rosterStats').textContent=`WAVE 1: ${slotCount.toLocaleString()} playable fighters / 10,000 target · ${originalIds.length} named + ${slotCount-originalIds.length} prototypes · ${ids.length} matches (showing ${showing.length})`;
 }
 $('startSearch').addEventListener('input',()=>drawRoster(selector,$('startSearch').value,'pick'));
 $('switchSearch').addEventListener('input',()=>drawRoster(switchRoster,$('switchSearch').value,'switch'));
 drawRoster(selector,'','pick');drawRoster(switchRoster,'','switch');
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
 addEventListener('resize',resize);resize();
-function reset(){paused=false;$('pauseScreen').style.display='none';$('pauseBtn').textContent='Ⅱ PAUSE';const cfg=config();player={x:W*.28,y:H*.53,r:19,hp:cfg.hp,max:cfg.hp,meter:0,face:1,stun:0,guard:false,ult:false,ultTime:0,attack:0,flash:0,character:selectedCharacter};enemy={x:W*.72,y:H*.5,r:22,hp:1000,max:1000,face:-1,stun:0,attack:0,ai:0};particles=[];floaters=[];cooldowns=[0,0,0,0];combo=0;comboTimer=0;dashCD=0;dodgeCD=0;iframes=0;guardTime=0;regenClock=0;over=false;updateHud()}
+function reset(){if(selectedCharacter==='chaos')rollChaos();chaosRerollCD=0;paused=false;$('pauseScreen').style.display='none';$('pauseBtn').textContent='Ⅱ PAUSE';const cfg=config();player={x:W*.28,y:H*.53,r:19,hp:cfg.hp,max:cfg.hp,meter:0,face:1,stun:0,guard:false,ult:false,ultTime:0,attack:0,flash:0,character:selectedCharacter};enemy={x:W*.72,y:H*.5,r:22,hp:1000,max:1000,face:-1,stun:0,attack:0,ai:0};particles=[];floaters=[];cooldowns=[0,0,0,0];combo=0;comboTimer=0;dashCD=0;dodgeCD=0;iframes=0;guardTime=0;regenClock=0;over=false;updateHud();showChaos()}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function say(s){$('message').textContent=s}
@@ -187,6 +223,7 @@ function updateHud(){
  $('mode').textContent=player.ult?(cfg.awakening+' — '+cfg.form):'BASE FORM';
  $('ult').innerHTML=player.ult?'AWAKENED<br>'+Math.ceil(player.ultTime)+'s':'ULTIMATE<br>'+Math.floor(player.meter)+'%';
  const moves=player.ult?cfg.ults:cfg.skills;['skill1','skill2','skill3','skill4'].forEach((id,i)=>$(id).textContent=(i+1)+' · '+moves[i].toUpperCase());
+ if(player.character==='chaos'&&Math.abs((chaosRerollCD||0)%30)<2)showChaos();
 }
 function damageEnemy(d,label){if(enemy.hp<=0)return;enemy.hp=Math.max(0,enemy.hp-d);enemy.stun=12;player.meter=clamp(player.meter+d*.8,0,100);fx(enemy.x,enemy.y,player.ult?'#b7c9ff':'#f6e7ff',13);float(enemy.x,enemy.y-25,'-'+d+' '+label);if(enemy.hp<=0){say('HOLLOW DEFEATED!');finish(true)}updateHud()}
 function damagePlayer(d){if(iframes>0){say('DODGED!');return}if(player.guard){d=Math.ceil(d*.25);say('GUARD!')}player.hp=Math.max(0,player.hp-d);player.stun=8;fx(player.x,player.y,'#ff8d8d',8);float(player.x,player.y-25,'-'+d);if(player.hp<=0)finish(false);updateHud()}
@@ -207,10 +244,41 @@ function dodge(){
  dodgeCD=140;iframes=22;player.flash=14;fx(player.x,player.y,'#c2b3ff',15);say('EVADE!')
 }
 function resetDummy(){if(!running||over)return;enemy.hp=enemy.max;enemy.stun=0;enemy.ai=0;enemy.x=W*.72;enemy.y=H*.5;say('Training dummy restored to full HP!');updateHud()}
+function prototypeSkill(i,cfg){
+ // Eight reusable combat families have different reach, damage, speed, and guard profiles.
+ const ranged=['RANGER','MYSTIC','ELEMENTAL'].includes(cfg.name);
+ const heavy=['VANGUARD','GUARDIAN'].includes(cfg.name);
+ const quick=['DUELIST','SHADOW','STRIKER'].includes(cfg.name);
+ const names=player.ult?cfg.ults:cfg.skills;
+ const bonus=player.ult?11:0,range=ranged?345:(heavy?145:205);
+ const color=cfg.accent;
+ if(i===0){cooldowns[i]=ranged?190:175;if(dist(player,enemy)<range) {damageEnemy(21+bonus+(heavy?7:0),names[i]);say(names[i]+'!')}else say(names[i]+' missed!');fx(player.x+player.face*34,player.y,color,ranged?17:9)}
+ else if(i===1){cooldowns[i]=quick?125:180;player.x=clamp(player.x+player.face*(quick?150:105),24,W-24);player.y=clamp(player.y+(enemy.y-player.y)*.20,100,H-75);fx(player.x,player.y,color,15);if(dist(player,enemy)<95)damageEnemy(quick?19+bonus:12+bonus,names[i]);else say(names[i]+'!')}
+ else if(i===2){cooldowns[i]=heavy?220:205;const radius=ranged?280:145;if(dist(player,enemy)<radius)damageEnemy(heavy?35+bonus:27+bonus,names[i]);else say(names[i]+' missed!');fx(player.x,player.y,color,20);player.attack=16}
+ else{cooldowns[i]=heavy?145:185;player.guard=true;guardTime=heavy?100:65;if(cfg.name==='GUARDIAN')player.hp=Math.min(player.max,player.hp+6);say(names[i]+'!')}
+ updateHud();
+}
+function chaosSkill(i,cfg){
+ // Four actual move roles with four distinct named source fighters.
+ const names=player.ult?cfg.ults:cfg.skills,source=roster[cfg.chaosSources[i]]||roster.luffy;
+ const potency=Math.round((source.hp-160)*.08),bonus=player.ult?12:0;
+ if(i===0){cooldowns[i]=195;if(dist(player,enemy)<340){damageEnemy(23+potency+bonus,names[i]);say(names[i]+' — '+source.short)}else say(names[i]+' missed!');fx(player.x+player.face*50,player.y,source.accent,17)}
+ else if(i===1){cooldowns[i]=150;player.x=clamp(player.x+player.face*145,24,W-24);player.y=clamp(player.y+(enemy.y-player.y)*.22,100,H-75);fx(player.x,player.y,source.accent,22);if(dist(player,enemy)<115)damageEnemy(18+potency+bonus,names[i]);else say(names[i]+' — '+source.short)}
+ else if(i===2){cooldowns[i]=225;if(dist(player,enemy)<240)damageEnemy(30+potency+bonus,names[i]);else say(names[i]+' missed!');fx(player.x,player.y,source.accent,26);player.attack=18}
+ else{cooldowns[i]=180;player.guard=true;guardTime=84;say(names[i]+' — '+source.short)}
+ updateHud();
+}
+function rerollChaos(){
+ if(!running||over||paused||!player||player.character!=='chaos')return;
+ if(chaosRerollCD>0){say('Chaos reroll in '+Math.ceil(chaosRerollCD/60)+'s');return}
+ rollChaos();chaosRerollCD=1200;fx(player.x,player.y,roster.chaos.accent,30);say('CHAOS ROULETTE! New fighters, new moves!');updateHud();showChaos();
+}
 function skill(i){
  if(!running||over||paused||player.stun>0)return;
  if(cooldowns[i]>0){say('Move cooling down: '+(cooldowns[i]/60).toFixed(1)+'s');return}
  const cfg=roster[player.character]||roster.ichigo;const names=player.ult?cfg.ults:cfg.skills;const isLuffy=player.character==='luffy';
+ if(cfg.isChaos){chaosSkill(i,cfg);return}
+ if(cfg.isPrototype){prototypeSkill(i,cfg);return}
  if(isLuffy){
   if(i===0){cooldowns[i]=player.ult?210:180;let d=dist(player,enemy);if(d<390){damageEnemy(player.ult?34:22,names[i]);say(names[i]+' HIT!');fx(enemy.x,enemy.y,player.ult?'#ffe58a':'#f2a16b',18)}else{say('Too far away — line up your punch!');fx(player.x+player.face*55,player.y,'#f2a16b',7)}}
   if(i===1){cooldowns[i]=190;player.x=clamp(player.x+player.face*125,25,W-25);player.y=clamp(player.y+(enemy.y-player.y)*.16,100,H-90);fx(player.x,player.y,'#f5b36d',18);if(dist(player,enemy)<player.r+enemy.r+80)damageEnemy(player.ult?27:17,names[i]);else say(names[i]+'!')}
@@ -246,7 +314,7 @@ function update(dt){
  player.guard=!!(keys.b||keys.B||keys.Shift||touch.guard||guardTime>0);
  regenClock+=dt;if(regenClock>=180){regenClock=0;player.hp=Math.min(player.max,player.hp+1)}
  if(player.ult){player.ultTime-=dt/60;if(player.ultTime<=0){player.ult=false;player.ultTime=0;say('Awakening ended. Meter will build again.')} }
- dashCD=Math.max(0,dashCD-dt);dodgeCD=Math.max(0,dodgeCD-dt);iframes=Math.max(0,iframes-dt);guardTime=Math.max(0,guardTime-dt);cooldowns=cooldowns.map(v=>Math.max(0,v-dt));if(comboTimer>0)comboTimer-=dt;else combo=0;
+ dashCD=Math.max(0,dashCD-dt);dodgeCD=Math.max(0,dodgeCD-dt);chaosRerollCD=Math.max(0,chaosRerollCD-dt);iframes=Math.max(0,iframes-dt);guardTime=Math.max(0,guardTime-dt);cooldowns=cooldowns.map(v=>Math.max(0,v-dt));if(comboTimer>0)comboTimer-=dt;else combo=0;
  // Simple training opponent AI
  if(enemy.hp>0&&enemy.stun<=0){let dx=player.x-enemy.x,dy=player.y-enemy.y,d=Math.hypot(dx,dy)||1;enemy.face=Math.sign(dx)||enemy.face;if(d>52){enemy.x+=dx/d*1.05*dt;enemy.y+=dy/d*1.05*dt}else{enemy.ai+=dt;if(enemy.ai>78){enemy.ai=0;enemy.attack=12;damagePlayer(7)}}}
  if(player.flash>0)player.flash-=dt;if(player.attack>0)player.attack-=dt;if(enemy.attack>0)enemy.attack-=dt;
@@ -291,7 +359,14 @@ function togglePause(force){
 }
 function openSwitchMenu(){if(!running||over)return;paused=true;drawRoster(switchRoster,$('switchSearch').value,'switch');keys={};touch={};$('pauseScreen').style.display='none';$('pauseBtn').textContent='▶ RESUME';$('switchScreen').style.display='flex';document.querySelectorAll('[data-switch-char]').forEach(b=>b.classList.toggle('active',b.dataset.switchChar===player.character));}
 function closeSwitchMenu(){ $('switchScreen').style.display='none'; if(running&&!over){paused=false;$('pauseBtn').textContent='Ⅱ PAUSE';say('Fighter selected. Battle resumed!');}}
-function switchFighter(id){if(!roster[id]||!player)return;selectedCharacter=id;const cfg=roster[id];player.character=id;player.max=cfg.hp;player.hp=cfg.hp;player.meter=0;player.ult=false;player.ultTime=0;player.stun=0;player.guard=false;player.attack=0;guardTime=0;cooldowns=[0,0,0,0];combo=0;comboTimer=0;document.querySelectorAll('[data-char]').forEach(b=>b.classList.toggle('active',b.dataset.char===id));document.querySelectorAll('[data-switch-char]').forEach(b=>b.classList.toggle('active',b.dataset.switchChar===id));$('pickInfo').textContent=cfg.name+' — '+cfg.desc;fx(player.x,player.y,cfg.accent,24);say('Switched to '+cfg.short+'! Opponent progress preserved.');updateHud();closeSwitchMenu();}
+function switchFighter(id){if(!roster[id]||!player)return;selectedCharacter=id;if(id==='chaos')rollChaos();const cfg=roster[id];player.character=id;player.max=cfg.hp;player.hp=cfg.hp;player.meter=0;player.ult=false;player.ultTime=0;player.stun=0;player.guard=false;player.attack=0;guardTime=0;cooldowns=[0,0,0,0];combo=0;comboTimer=0;document.querySelectorAll('[data-char]').forEach(b=>b.classList.toggle('active',b.dataset.char===id));document.querySelectorAll('[data-switch-char]').forEach(b=>b.classList.toggle('active',b.dataset.switchChar===id));$('pickInfo').textContent=cfg.name+' — '+cfg.desc;fx(player.x,player.y,cfg.accent,24);say('Switched to '+cfg.short+'! Opponent progress preserved.');chaosRerollCD=0;updateHud();showChaos();closeSwitchMenu();}
+function randomSelection(inBattle){const id=randomId();if(inBattle)switchFighter(id);else pickFighter(id);return id}
+function pickFighter(id){if(!roster[id])return;selectedCharacter=id;if(id==='chaos')rollChaos();drawRoster(selector,$('startSearch').value,'pick');const cfg=config();$('pickInfo').textContent=cfg.name+' — '+cfg.desc}
+$('randomPick').addEventListener('click',()=>randomSelection(false));
+$('chaosPick').addEventListener('click',()=>pickFighter('chaos'));
+$('randomSwitch').addEventListener('click',()=>randomSelection(true));
+$('chaosSwitch').addEventListener('click',()=>switchFighter('chaos'));
+$('chaosReroll').addEventListener('click',rerollChaos);
 $('switchBtn').addEventListener('click',openSwitchMenu);
 $('switchClose').addEventListener('click',closeSwitchMenu);
 $('dashBtn').addEventListener('pointerdown',e=>{e.preventDefault();dash()});$('dodgeBtn').addEventListener('pointerdown',e=>{e.preventDefault();dodge()});$('trainingBtn').addEventListener('click',resetDummy);
@@ -302,10 +377,10 @@ $('resumeBtn').addEventListener('click',()=>togglePause(false));
 $('pauseRestartBtn').addEventListener('click',()=>{$('pauseScreen').style.display='none';reset();running=true;say('Rematch!')});
 function bind(id,fn){$(id).addEventListener('pointerdown',e=>{e.preventDefault();fn()})}
 bind('hit',attack);bind('skill1',()=>skill(0));bind('skill2',()=>skill(1));bind('skill3',()=>skill(2));bind('skill4',()=>skill(3));bind('ult',awaken);
-addEventListener('keydown',e=>{if(e.key==='Escape'){if(!e.repeat){if($('switchScreen').style.display==='flex')closeSwitchMenu();else togglePause()}return}if(paused)return;keys[e.key]=true;if(e.repeat)return;if(e.key==='j'||e.key===' ')attack();if(e.key.length===1&&'1234'.includes(e.key))skill(Number(e.key)-1);if(e.key==='u')awaken();if(e.key==='q'||e.key==='Q')dash();if(e.key==='e'||e.key==='E')dodge()});
+addEventListener('keydown',e=>{if(e.target&&['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(e.key==='Escape'){if(!e.repeat){if($('switchScreen').style.display==='flex')closeSwitchMenu();else togglePause()}return}if(paused)return;keys[e.key]=true;if(e.repeat)return;if(e.key==='j'||e.key===' ')attack();if(e.key.length===1&&'1234'.includes(e.key))skill(Number(e.key)-1);if(e.key==='u')awaken();if(e.key==='q'||e.key==='Q')dash();if(e.key==='e'||e.key==='E')dodge();if(e.key==='r'||e.key==='R')rerollChaos()});
 addEventListener('keyup',e=>keys[e.key]=false);
-selector.addEventListener('click',e=>{const b=e.target.closest('[data-char]');if(!b)return;selectedCharacter=b.dataset.char;drawRoster(selector,$('startSearch').value,'pick');const cfg=config();$('pickInfo').textContent=cfg.name+' — '+cfg.desc;});$('pickInfo').textContent=config().name+' — '+config().desc;
-$('start').onclick=()=>{$('startScreen').style.display='none';running=true;reset();say('Update 10: dash (Q), dodge (E), block (B), and awaken (U)!')};
+selector.addEventListener('click',e=>{const b=e.target.closest('[data-char]');if(b)pickFighter(b.dataset.char)});$('pickInfo').textContent=config().name+' — '+config().desc;
+$('start').onclick=()=>{$('startScreen').style.display='none';running=true;reset();say('Update 10 Wave 1! Random Fighter, Chaos (R reroll), dash (Q), dodge (E)!')};
 $('restart').onclick=()=>{$('endScreen').style.display='none';reset();running=true;say('Rematch!')};
 reset();requestAnimationFrame(loop);
 })();
